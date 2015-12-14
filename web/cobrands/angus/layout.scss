@@ -193,3 +193,35 @@ footer p.social a:active,footer p.social a:focus,footer p.social a:hover
     width:auto;
   }
 }
+
+.wrapper__subnav {
+  border-bottom: 1px solid $angus_grey_link;
+}
+
+.container__subnav {
+  display: block;
+  font-size: 0.9em;
+  padding: 1em 20px .75em 20px;
+
+  ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+
+    li {
+      display: inline;
+
+      &::before {
+        content: ">";
+        padding: 0 10px;
+      }
+      &:first-child::before {
+        content: "";
+      }
+
+      a {
+        color: black;
+      }
+    }
+  }
+}
