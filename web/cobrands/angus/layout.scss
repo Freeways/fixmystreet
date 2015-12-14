@@ -1,0 +1,63 @@
+@import "_colours";
+@import "_fonts";
+@import "../sass/layout";
+@import "../sass/report_list_pins";
+
+$max_page_width: 1200px;
+
+/* from http://nicolasgallagher.com/micro-clearfix-hack/ */
+.clearfix:before, .clearfix:after { content: " "; display: table; }
+.clearfix:after { clear: both; }
+/* For IE 6/7 only */
+.clearfix { *zoom: 1; }
+
+
+#site-logo,
+.ie6 #site-logo,
+body.frontpage #site-logo,
+.ie6 body.frontpage #site-logo,
+body.twothirdswidthpage #site-logo,
+.ie6 body.twothirdswidthpage #site-logo
+{
+        position: relative;
+        top: 14px;
+        left: 14px;
+        margin: 0;
+        padding: 0;
+        background: url("/cobrands/angus/third_party/css_img/angus-logo-header.png") 0 0 no-repeat;
+        background-size: contain;
+        width: 170px;
+        height: 83px;
+}
+
+
+#site-header {
+  background-color: $angus_green;
+  border-bottom: solid 8px $angus_dark_green;
+  box-shadow: 0 5px 5px rgba(0, 0, 0, .075);
+}
+
+body.frontpage #site-header {
+  height: 100px;
+}
+
+#front-main {
+  background: transparent;
+
+  #front-main-container {
+    background-color: $angus_grey;
+    width: 100%;
+    max-width: $max_page_width;
+    padding-top: 1em;
+    padding-bottom: 1em;
+  }
+}
+
+label[for=pc] {
+    color: $primary_b;
+}
+
+.container {
+  max-width: $max_page_width;
+  width: 100%;
+}

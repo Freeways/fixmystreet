@@ -1,0 +1,49 @@
+@import "../sass/h5bp";
+@import "./_colours";
+@import "./_fonts";
+@import "../sass/mixins";
+@import "compass";
+
+@import "../sass/base";
+
+body.frontpage #site-logo,
+.ie6 body.frontpage #site-logo,
+#site-logo
+{
+    background: url("/cobrands/angus/third_party/css_img/angus-logo-header.png") 0 0 no-repeat;
+    background-size: contain;
+    width: 82px;
+    height: 40px;
+    top: 8px;
+    left: 4px;
+}
+
+#nav-link {
+  background: url('/cobrands/angus/tab-red.png') 0 0 no-repeat;
+}
+
+
+#site-header {
+    background: $angus_green;
+}
+
+.item-list--reports__item, #user-meta p, #front-main #postcodeForm {
+//    background-color: $greenwich_light_grey;
+}
+
+label[for=pc] {
+    color: $nav_fg;
+}
+
+ol.big-numbers > li:before {
+    color: $primary;
+}
+
+#front-howto #front_stats {
+    color: $nav_fg;
+}
+
+
+.nav-menu--mysoc {
+  display: none;
+}
