@@ -45,11 +45,59 @@ body.frontpage #site-header {
   background: transparent;
 
   #front-main-container {
-    background-color: $angus_grey;
+    background-color: $angus_light_grey;
     width: 100%;
     max-width: $max_page_width;
     padding-top: 1em;
     padding-bottom: 1em;
+  }
+}
+
+body.fullwidthpage, body.twothirdswidthpage {
+  .container .content {
+    footer {
+      font-size: 0.8em;
+
+      .tablewrapper, .tablewrapper.bordered {
+        width: 100%;
+        border-top: solid 8px $angus_grey;
+        background: $angus_dark_grey;
+        color: white;
+        padding-bottom: 1em;
+
+        a {
+          color: $angus_grey_link;
+        }
+
+        ul {
+          margin: 0;
+          padding: 1em 0;
+
+          li {
+            display: inline-block;
+            margin: 0 .75em .25em 0;
+            padding: 0;
+            position: relative;
+            list-style: none;
+
+            &::after {
+              margin-left: -2px;
+              content: ",";
+            }
+            &:last-child::after {
+              content: ".";
+            }
+
+            a {
+              color: $angus_grey_link;
+              &:hover {
+                color: $angus_light_grey;
+              }
+            }
+          }
+        }
+      }
+    }
   }
 }
 
@@ -60,4 +108,88 @@ label[for=pc] {
 .container {
   max-width: $max_page_width;
   width: 100%;
+}
+
+[class*=" icon-"]:before,[class^=icon-]:before
+{
+  -moz-osx-font-smoothing:grayscale;
+  -webkit-font-smoothing:antialiased;
+  font-family:angusgov;
+  font-style:normal;
+  font-variant:normal;
+  font-weight:400;
+  line-height:1;
+  speak:none;
+  text-transform:none;
+}
+
+.icon-facebook:before
+{
+  content:"\e61c";
+}
+
+.icon-twitter:before
+{
+  content:"\e61d";
+}
+
+.icon-youtube:before
+{
+  content:"\e61e";
+}
+
+footer p.social
+{
+  overflow:hidden;
+}
+
+footer p.social a
+{
+  -moz-transition:.15s color ease-in,.15s background-color ease-in;
+  -webkit-transition:.15s color ease-in,.15s background-color ease-in;
+  background-color:#3c3c3c;
+  border-radius:1em;
+  float:left;
+  font-size:2.25rem;
+  height:1em;
+  margin:0 .25em 0 0;
+  text-indent:-20000px;
+  transition:.15s color ease-in,.15s background-color ease-in;
+  width:1em;
+}
+
+footer p.social a:before
+{
+  float:left;
+  font-size:1.25rem;
+  line-height:1.8;
+  text-align:center;
+  text-indent:0;
+  width:100%;
+}
+
+.lt-ie9 footer p.social a:before
+{
+  font-size:1.25em;
+}
+
+footer p.social a:active,footer p.social a:focus,footer p.social a:hover
+{
+  background-color:#353535;
+  text-decoration:none;
+}
+
+.ie6, .ie7, .ie8 {
+  footer p.social a {
+    font-size:2.25em;
+  }
+}
+
+.ie6, .ie7 {
+  footer p.social a {
+    font-size:1.2em!important;
+    height:1.5em;
+    text-indent:0;
+    width:auto;
+  }
 }

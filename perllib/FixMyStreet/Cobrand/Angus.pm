@@ -9,6 +9,11 @@ sub council_area { return 'Angus'; }
 sub council_name { return 'Angus Council'; }
 sub council_url { return 'angus'; }
 
+sub enter_postcode_text {
+    my ($self) = @_;
+    return 'Enter an Angus postcode, or street name and area';
+}
+
 sub example_places {
     return ( 'DD8 3AP', "Canmore Street" );
 }
