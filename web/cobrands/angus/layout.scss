@@ -28,13 +28,110 @@ body.twothirdswidthpage #site-logo,
         background-size: contain;
         width: 170px;
         height: 83px;
+        display: inline-block;
 }
-
 
 #site-header {
   background-color: $angus_green;
   border-bottom: solid 8px $angus_dark_green;
   box-shadow: 0 5px 5px rgba(0, 0, 0, .075);
+
+  .container {
+    position: relative;
+  }
+
+  form.form__search {
+    display: block;
+    clear: right;
+    margin: .65em 0 .25em;
+    padding: 0;
+    text-align: right;
+    width: 75%;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    position: absolute;
+    bottom: 0;
+    right: 0;
+
+    .field {
+      min-width: 13em;
+      position: relative;
+      z-index: 100;
+      width: 41.66667%;
+      display: inline;
+
+      border: 1px solid rgba(0,0,0,.6);
+      box-shadow: inset 0 3px 5px rgba(0,0,0,0.15);
+      font-family: $body-font;
+      font-size: .9em;
+      height: 2.5em;
+      margin: 0;
+      padding: .55em .5em;
+      vertical-align: top;
+      -webkit-box-sizing: border-box;
+      -moz-box-sizing: border-box;
+      box-sizing: border-box;
+      line-height: 1.5em;
+      border-radius: 0;
+
+    }
+
+    // input placeholders, these need to be on separate lines as if the browser
+    // can't understand a selector it will invalidate the whole line.
+    ::-webkit-input-placeholder {
+      color: $angus_grey;
+      font: {
+        style: normal;
+        size: 1em;
+      }
+    }
+    :-moz-placeholder {
+      color: $angus_grey;
+      font: {
+        style: normal;
+        size: 1em;
+      }
+    }
+    :-ms-placeholder {
+      color: $angus_grey;
+      font: {
+        style: normal;
+        size: 1em;
+      }
+    }
+
+    .button {
+      padding-left: 20px;
+      padding-right: 20px;
+      margin: 0;
+      position: relative;
+      z-index: 100;
+      -webkit-box-sizing: border-box;
+      -moz-box-sizing: border-box;
+      box-sizing: border-box;
+      display: inline;
+      background: #114a97;
+      border-bottom-color: #0c3469!important;
+      -webkit-appearance: none;
+      border: 0 none;
+      border-bottom: 2px solid;
+      border-radius: 4px;
+      color: #fff;
+      cursor: pointer;
+      font-family: Sintony,sans-serif;
+      font-size: .9em;
+      font-weight: 400;
+      min-height: 2.5em;
+      line-height: 1.6;
+      padding: .55em 1em .45em;
+      text-align: center;
+      text-decoration: none;
+      text-shadow: 0 -1px 0 rgba(0,0,0,.5);
+      text-transform: lowercase;
+      vertical-align: top;
+    }
+  }
 }
 
 body.frontpage #site-header {
@@ -285,5 +382,9 @@ body.mappage {
   #site-header {
     border-bottom: 0;
     box-shadow: none;
+
+    form.form__search {
+      display: none;
+    }
   }
 }
