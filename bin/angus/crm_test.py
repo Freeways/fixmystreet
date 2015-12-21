@@ -2,6 +2,7 @@
 # A little script to verify the interactions with Angus's CRM SOAP interface.
 
 import logging
+from datetime import datetime
 
 import suds.client
 from xml.etree import ElementTree as ET
@@ -39,9 +40,19 @@ def create_service_request(client, token):
     Returns the request ID returned by the endpoint.
     """
     formfields = dict_to_formfields_string({
+        # 'RequestDescription': "Test report",
         'RequestDetails': "This is a request. This field contains details of the request.",
-        'AdditionalDetails': "This field contains additional details of the request."
+        'ReporterName': "Test User",
+        'ReporterEmail': 'test@example.org',
+        'ReportedDateTime': str(datetime.utcnow()),
+        'ColumnId': '', # What is this for? Seems OK to leave it blank
+        'ReportedLocation': '',
+        'ReportedNorthing': '750781',
+        'ReportedEasting': '345986',
+        # 'ReportedCategory': 'Street Lighting',
+        'ImageURL': '',
     })
+    print formfields
 
     params = {
         'authenticationtoken': token,
@@ -54,11 +65,10 @@ def create_service_request(client, token):
         'PaymentRef': '',
         'JADUFormFields': formfields
     }
-    print params
 
     root = ET.fromstring(client.service.CreateServiceRequest(**params))
     if root.find("success").text.strip() == 'True':
-        return root.find("RequestId").text.strip()
+        return root.find("CreateRequestResult/RequestId").text.strip()
     else:
         raise Exception(root.find("message").text.strip())
 
@@ -66,18 +76,17 @@ def main():
     """
     Connect, authenticate, create a new service request and print its ID.
     """
-    client = suds.client.Client(ENDPOINT)
+    client = suds.client.Client(ENDPOINT, prettyxml=True)
 
     token = get_auth_token(client)
     if not token:
         raise Exception("Couldn't authenticate.")
-    print "Token: {}".format(token)
 
     try:
         request_id = create_service_request(client, token)
-        print "Created a new request, received ID: {}".format(request_id)
+        logging.info("SUCCESS! Created a new request, received ID: {}".format(request_id))
     except Exception as e:
-        print "Couldn't create a new request. Error was: {}".format(e)
+        logging.error("ERROR! Couldn't create a new request. Error was: {}".format(e))
 
 if __name__ == '__main__':
     main()
