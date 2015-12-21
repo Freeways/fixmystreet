@@ -40,19 +40,20 @@ def create_service_request(client, token):
     Returns the request ID returned by the endpoint.
     """
     formfields = dict_to_formfields_string({
-        # 'RequestDescription': "Test report",
+        'RequestTitle': "Test report",
         'RequestDetails': "This is a request. This field contains details of the request.",
         'ReporterName': "Test User",
         'ReporterEmail': 'test@example.org',
+        'ReporterAnonymity': 'False',
         'ReportedDateTime': str(datetime.utcnow()),
         'ColumnId': '', # What is this for? Seems OK to leave it blank
-        'ReportedLocation': '',
+        'ReportId': '123',
         'ReportedNorthing': '750781',
         'ReportedEasting': '345986',
-        # 'ReportedCategory': 'Street Lighting',
-        'ImageURL': '',
+        'Imageurl1': '',
+        'Imageurl2': '',
+        'Imageurl3': '',
     })
-    print formfields
 
     params = {
         'authenticationtoken': token,
