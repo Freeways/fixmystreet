@@ -17,6 +17,16 @@ sub get_auth_token {
     }
 }
 
+sub get_external_id {
+    my ($self, $result) = @_;
+    if ($result =~ m/<RequestId>\s*([^\s]+)\s*<\/RequestId>/) {
+        return $1;
+    } else {
+        $self->error("Couldn't find external id in response from Angus endpoint.");
+        return undef;
+    }
+}
+
 sub crm_request_type {
     my ($self, $row, $h) = @_;
     return 'StLight'; # TODO: Set this according to report category
@@ -89,7 +99,6 @@ sub jadu_form_fields {
     });
     # The endpoint crashes if the JADUFormFields string has whitespace between XML elements, so strip it out...
     $output =~ s/>[\s\n]+</></g;
-    print $output;
     return $output;
 }
 
@@ -113,8 +122,12 @@ sub send {
             $authtoken, '1', '1', '1', '1', $self->crm_request_type($row, $h),
             'FMS', '', $self->jadu_form_fields($row, $h)
         );
-        print $result;
-        $return = 0 if $result eq 'Report received';
+        my $external_id = $self->get_external_id( $result );
+        if ( $external_id ) {
+            $row->external_id( $external_id );
+            $row->send_method_used('Angus');
+            $return = 0;
+        }
     } catch {
         my $e = $_;
         print "Caught an error: $e\n";
