@@ -8,25 +8,6 @@ use Try::Tiny;
 use Encode;
 use mySociety::Web qw(ent);
 
-sub construct_message {
-    my %h = @_;
-    my $message = '';
-    $message .= "[ This report was also sent to the district council covering the location of the problem, as the user did not categorise it; please ignore if you're not the correct council to deal with the issue. ]\n\n"
-        if $h{multiple};
-    $message .= <<EOF;
-Subject: $h{title}
-
-Details: $h{detail}
-
-$h{fuzzy}, or to provide an update on the problem, please visit the following link:
-
-$h{url}
-
-$h{closest_address}
-EOF
-    return $message;
-}
-
 sub get_auth_token {
     my ($self, $authresult) = @_;
     if ($authresult =~ m/<AuthenticateResult>\s*([^\s]+)\s*<\/AuthenticateResult>/) {
@@ -53,47 +34,47 @@ sub jadu_form_fields {
             formfield => [
                 {
                     name => 'RequestTitle',
-                    value => 'Test report'
+                    value => $h->{title}
                 },
                 {
                     name => 'RequestDetails',
-                    value => 'This is a request. This field contains details of the request.'
+                    value => $h->{detail}
                 },
                 {
                     name => 'ReporterName',
-                    value => 'Test User'
+                    value => $h->{name}
                 },
                 {
                     name => 'ReporterEmail',
-                    value => 'test@example.org'
+                    value => $h->{email}
                 },
                 {
                     name => 'ReporterAnonymity',
-                    value => 'False'
+                    value => $row->anonymous ? 'True' : 'False'
                 },
                 {
                     name => 'ReportedDateTime',
-                    value => '2016-01-08 15:11:00.1234'
+                    value => $h->{confirmed}
                 },
                 {
                     name => 'ColumnId',
-                    value => ''
+                    value => '' # TODO: Fill with lamppost id
                 },
                 {
                     name => 'ReportId',
-                    value => '123'
+                    value => $h->{id}
                 },
                 {
                     name => 'ReportedNorthing',
-                    value => '750781'
+                    value => $h->{northing}
                 },
                 {
                     name => 'ReportedEasting',
-                    value => '345986'
+                    value => $h->{easting}
                 },
                 {
                     name => 'Imageurl1',
-                    value => ''
+                    value => $h->{image_url}
                 },
                 {
                     name => 'Imageurl2',
@@ -120,8 +101,6 @@ sub send {
 
     require AngusSOAP;
 
-    $h->{category} = 'Customer Services' if $h->{category} eq 'Other';
-    $h->{message} = construct_message( %$h );
     my $return = 1;
     $angus_service ||= AngusSOAP->on_fault(sub { my($soap, $res) = @_; die ref $res ? $res->faultstring : $soap->transport->status, "\n"; });
     try {
@@ -133,8 +112,6 @@ sub send {
         my $result = $angus_service->CreateServiceRequest(
             $authtoken, '1', '1', '1', '1', $self->crm_request_type($row, $h),
             'FMS', '', $self->jadu_form_fields($row, $h)
-            # $h->{category}, 'FixMyStreet', '', '', $name, $h->{email}, $h->{phone},
-            # '', '', '', '', '', '', $message, 'Yes', $h->{image_url}
         );
         print $result;
         $return = 0 if $result eq 'Report received';
