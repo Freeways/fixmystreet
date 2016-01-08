@@ -7,11 +7,10 @@ package AngusSOAP;
 # -- generated with the stubmaker.pl script from SOAP::Lite
 
 # Angus provide endpoints for testing and production, make sure we're using the right one.
-# TODO: Depend on FixMyStreet->config('STAGING_SITE') instead of hardcoding.
-my $STAGING_SITE = 1;
+use FixMyStreet;
 my $TEST_ENDPOINT = 'https://webservicestest.angus.gov.uk/acwebservices.cfc';
 my $LIVE_ENDPOINT = 'https://webserviceslive.angus.gov.uk/acwebservices.cfc';
-my $ENDPOINT = $STAGING_SITE ? $TEST_ENDPOINT : $LIVE_ENDPOINT;
+my $ENDPOINT = FixMyStreet->config('STAGING_SITE') ? $TEST_ENDPOINT : $LIVE_ENDPOINT;
 
 my %methods = (
 'GetLocaleInfo' => {
