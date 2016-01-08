@@ -46,7 +46,7 @@ def create_service_request(client, token):
         'ReporterEmail': 'test@example.org',
         'ReporterAnonymity': 'False',
         'ReportedDateTime': str(datetime.utcnow()),
-        'ColumnId': '', # What is this for? Seems OK to leave it blank
+        'ColumnId': '', # This is the ID from the lamppost sticker, if the user has included it.
         'ReportId': '123',
         'ReportedNorthing': '750781',
         'ReportedEasting': '345986',

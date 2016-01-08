@@ -92,8 +92,9 @@ requires 'XML::Simple';
 requires 'YAML';
 
 feature 'uk', 'FixMyStreet.com specific requirements' => sub {
-    # East Hampshire
+    # East Hampshire & Angus
     requires 'SOAP::Lite';
+    requires 'LWP::Protocol::https';
 };
 
 feature 'open311-endpoint', 'Open311::Endpoint specific requirements' => sub {
