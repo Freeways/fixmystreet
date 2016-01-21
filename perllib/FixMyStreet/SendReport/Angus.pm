@@ -39,6 +39,11 @@ sub jadu_form_fields {
         KeepRoot => 1,
         SuppressEmpty => 0,
     );
+    my $metas = $row->get_extra_fields();
+    my %extras;
+    foreach my $field (@$metas) {
+        $extras{$field->{name}} = $field->{value};
+    }
     my $output = $xml->XMLout({
         formfields => {
             formfield => [
@@ -68,7 +73,7 @@ sub jadu_form_fields {
                 },
                 {
                     name => 'ColumnId',
-                    value => '' # TODO: Fill with lamppost id
+                    value => $extras{'column_id'} || ''
                 },
                 {
                     name => 'ReportId',
