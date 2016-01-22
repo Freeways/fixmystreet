@@ -12,6 +12,9 @@ my $TEST_ENDPOINT = 'https://webservicestest.angus.gov.uk/acwebservices.cfc';
 my $LIVE_ENDPOINT = 'https://webserviceslive.angus.gov.uk/acwebservices.cfc';
 my $ENDPOINT = FixMyStreet->config('STAGING_SITE') ? $TEST_ENDPOINT : $LIVE_ENDPOINT;
 
+# It can be helpful to override the endpoint URL e.g. for dev or testing
+$ENDPOINT = FixMyStreet->config('ANGUS_ENDPOINT') ? FixMyStreet->config('ANGUS_ENDPOINT') : $ENDPOINT;
+
 my %methods = (
 'GetLocaleInfo' => {
     endpoint => $ENDPOINT,
