@@ -44,6 +44,7 @@ sub jadu_form_fields {
     foreach my $field (@$metas) {
         $extras{$field->{name}} = $field->{value};
     }
+    my $cobrand = FixMyStreet::Cobrand->get_class_for_moniker($row->cobrand)->new();
     my $output = $xml->XMLout({
         formfields => {
             formfield => [
@@ -89,15 +90,15 @@ sub jadu_form_fields {
                 },
                 {
                     name => 'Imageurl1',
-                    value => $h->{image_url}
+                    value => @{$row->photos} ? ($cobrand->base_url . $row->photos->[0]->{url_full}) : ''
                 },
                 {
                     name => 'Imageurl2',
-                    value => ''
+                    value => @{$row->photos} ? ($cobrand->base_url . $row->photos->[1]->{url_full}) : ''
                 },
                 {
                     name => 'Imageurl3',
-                    value => ''
+                    value => @{$row->photos} ? ($cobrand->base_url . $row->photos->[2]->{url_full}) : ''
                 }
             ]
         }
