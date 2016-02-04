@@ -134,8 +134,10 @@ body.twothirdswidthpage #site-logo,
   }
 }
 
-body.frontpage #site-header {
-  height: 100px;
+body.fullwidthpage, body.twothirdswidthpage, body.authpage, body.frontpage {
+  #site-header {
+    height: 100px;
+  }
 }
 
 #front-main {
@@ -156,6 +158,9 @@ body.fullwidthpage, body.twothirdswidthpage, body.authpage {
     width: 100%;
 
     .content {
+      background: $angus_light_grey;
+      background-color: $angus_light_grey;
+
       footer {
         font-size: 0.8em;
 
@@ -202,6 +207,25 @@ body.fullwidthpage, body.twothirdswidthpage, body.authpage {
     }
   }
 }
+
+body.frontpage {
+  .container {
+    .content {
+      background: $base_bg;
+      background-color: $base_bg;
+    }
+  }
+}
+
+body.twothirdswidthpage .content .sticky-sidebar {
+    z-index: 0;
+    left: 43em;
+
+    aside {
+        top: 15em;
+    }
+}
+
 
 label[for=pc] {
     color: $primary_b;
