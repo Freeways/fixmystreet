@@ -20,14 +20,14 @@ body.twothirdswidthpage #site-logo,
 .ie6 body.twothirdswidthpage #site-logo
 {
         position: relative;
-        top: 14px;
-        left: 14px;
+        top: 13px;
+        left: 20px;
         margin: 0;
         padding: 0;
         background: url("/cobrands/angus/third_party/css_img/angus-logo-header.png") 0 0 no-repeat;
         background-size: contain;
-        width: 170px;
-        height: 83px;
+        width: 165px;
+        height: 66px;
         display: inline-block;
 }
 
@@ -136,7 +136,7 @@ body.twothirdswidthpage #site-logo,
 
 body.fullwidthpage, body.twothirdswidthpage, body.authpage, body.frontpage {
   #site-header {
-    height: 100px;
+    height: 91px;
   }
 }
 
@@ -161,49 +161,6 @@ body.fullwidthpage, body.twothirdswidthpage, body.authpage {
       background: $angus_light_grey;
       background-color: $angus_light_grey;
 
-      footer {
-        font-size: 0.8em;
-
-        .tablewrapper, .tablewrapper.bordered {
-          width: 100%;
-          border-top: solid 8px $angus_grey;
-          background: $angus_dark_grey;
-          color: white;
-          padding-bottom: 1em;
-
-          a {
-            color: $angus_grey_link;
-          }
-
-          ul {
-            margin: 0;
-            padding: 1em 0;
-
-            li {
-              display: inline-block;
-              margin: 0 .75em .25em 0;
-              padding: 0;
-              position: relative;
-              list-style: none;
-
-              &::after {
-                margin-left: -2px;
-                content: ",";
-              }
-              &:last-child::after {
-                content: ".";
-              }
-
-              a {
-                color: $angus_grey_link;
-                &:hover {
-                  color: $angus_light_grey;
-                }
-              }
-            }
-          }
-        }
-      }
     }
   }
 }
@@ -431,4 +388,56 @@ body.mappage {
   top: 6em;
   left: -6em;
   color: $angus_light_grey;
+}
+
+.wrapper--footer {
+  border-top: solid 8px $angus_grey;
+  background: $angus_dark_grey;
+
+  footer {
+    font-size: 0.8em;
+    max-width: $max_page_width;
+    margin: 0 auto;
+    padding-top: 3em;
+    padding-left: 3em;
+
+    .tablewrapper, .tablewrapper.bordered {
+      border-top: none;
+      width: 100%;
+      color: white;
+      padding-bottom: 1em;
+
+      a {
+        color: $angus_grey_link;
+      }
+
+      ul {
+        margin: 0;
+        padding: 1em 0;
+
+        li {
+          display: inline-block;
+          margin: 0 .75em .25em 0;
+          padding: 0;
+          position: relative;
+          list-style: none;
+
+          &::after {
+            margin-left: -2px;
+            content: ",";
+          }
+          &:last-child::after {
+            content: ".";
+          }
+
+          a {
+            color: $angus_grey_link;
+            &:hover {
+              color: $angus_light_grey;
+            }
+          }
+        }
+      }
+    }
+  }
 }
