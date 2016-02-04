@@ -215,6 +215,10 @@ body.frontpage {
       background-color: $base_bg;
     }
   }
+  #user-meta p {
+    right: -124px;
+    top: -104px;
+  }
 }
 
 body.twothirdswidthpage .content .sticky-sidebar {
@@ -412,7 +416,19 @@ body.mappage {
     }
   }
 
-  #user-meta + .wrapper + .wrapper + .container .content {
-    padding-top: 3.5em; // make room for user menu!
+  #user-meta {
+    p {
+      color: $primary_text;
+    }
+
+    & + .wrapper + .wrapper + .container .content {
+      padding-top: 3.5em; // make room for user menu!
+    }
   }
+}
+
+#user-meta p {
+  top: 6em;
+  left: -6em;
+  color: $angus_light_grey;
 }
