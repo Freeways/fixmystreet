@@ -387,4 +387,8 @@ body.mappage {
       display: none;
     }
   }
+
+  #user-meta + .wrapper + .wrapper + .container .content {
+    padding-top: 3.5em; // make room for user menu!
+  }
 }
