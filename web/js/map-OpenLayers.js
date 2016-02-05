@@ -397,6 +397,20 @@ function fixmystreet_onload() {
 
 }
 
+function addAngusStreetLightLayer() {
+    var protocol = new OpenLayers.Protocol.WFS({
+        version: "1.1.0",
+        url:  "http://angus.endpoint.davea.me/datatest/geoserver/services/wfs",
+        featureType: "lighting_column_v",
+        geometryName: "g",
+    });
+    var layer = new OpenLayers.Layer.Vector("WFS", {
+        strategies: [new OpenLayers.Strategy.BBOX()],
+        protocol: protocol,
+    });
+    fixmystreet.map.addLayer(layer);
+}
+
 $(function(){
 
     // Set specific map config - some other JS included in the
@@ -444,6 +458,11 @@ $(function(){
             layer = new fixmystreet.map_type(fixmystreet.layer_name, fixmystreet.layer_options[i]);
         }
         fixmystreet.map.addLayer(layer);
+    }
+
+    var cobrand = $('meta[name="cobrand"]').attr('content');
+    if (fixmystreet.page == 'new' && cobrand == 'angus') {
+        addAngusStreetLightLayer();
     }
 
     if (!fixmystreet.map.getCenter()) {
