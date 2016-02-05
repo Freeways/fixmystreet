@@ -407,8 +407,39 @@ function addAngusStreetLightLayer() {
     var layer = new OpenLayers.Layer.Vector("WFS", {
         strategies: [new OpenLayers.Strategy.BBOX()],
         protocol: protocol,
+        visibility: false,
+        maxResolution: 2.388657133579254,
+        minResolution: 0.5971642833948135
+    });
+
+    var select_feature = new OpenLayers.Control.SelectFeature( layer );
+    var selectedFeature;
+    layer.events.register( 'featureunselected', layer, function(evt) {
+        var feature = evt.feature, popup = feature.popup;
+        fixmystreet.map.removePopup(popup);
+        popup.destroy();
+        feature.popup = null;
+    });
+    var onPopupClose = function onPopupClose(evt) {
+        select_feature.unselect(selectedFeature);
+        OpenLayers.Event.stop(evt);
+    };
+    layer.events.register( 'featureselected', layer, function(evt) {
+        var feature = evt.feature;
+        selectedFeature = feature;
+        var popup = new OpenLayers.Popup.FramedCloud("popup",
+            feature.geometry.getBounds().getCenterLonLat(),
+            null,
+            "Column ID: " + feature.attributes.n,
+            { size: new OpenLayers.Size(0, 0), offset: new OpenLayers.Pixel(0, 0) },
+            true, onPopupClose);
+        feature.popup = popup;
+        fixmystreet.map.addPopup(popup);
     });
     fixmystreet.map.addLayer(layer);
+    fixmystreet.map.addControl( select_feature );
+    select_feature.activate();
+    fixmystreet.wfs_layer = layer;
 }
 
 $(function(){
@@ -460,11 +491,6 @@ $(function(){
         fixmystreet.map.addLayer(layer);
     }
 
-    var cobrand = $('meta[name="cobrand"]').attr('content');
-    if (fixmystreet.page == 'new' && cobrand == 'angus') {
-        addAngusStreetLightLayer();
-    }
-
     if (!fixmystreet.map.getCenter()) {
         var centre = new OpenLayers.LonLat( fixmystreet.longitude, fixmystreet.latitude );
         centre.transform(
@@ -482,6 +508,11 @@ $(function(){
         var click = new OpenLayers.Control.Click();
         fixmystreet.map.addControl(click);
         click.activate();
+
+        // Angus cobrand includes street light layer for new reports
+        if ($('meta[name="cobrand"]').attr('content') == 'angus') {
+            addAngusStreetLightLayer();
+        }
     }
 
     $(window).hashchange(function(){
