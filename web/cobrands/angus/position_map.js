@@ -23,6 +23,10 @@ var add_streetlights = (function() {
             document.getElementById('fixmystreet.longitude').value = lonlat.lon || lonlat.x;
     }
 
+    function clear_column_id_field() {
+        $("#form_column_id").val("");
+    }
+
     function add_streetlights() {
         if (streetlight_layer !== null) {
             // Layer has already been added
@@ -60,6 +64,7 @@ var add_streetlights = (function() {
 
         var select_feature = new OpenLayers.Control.SelectFeature( layer );
         layer.events.register( 'featureselected', layer, street_light_selected);
+        layer.events.register( 'featureunselected', layer, clear_column_id_field);
         fixmystreet.map.addLayer(layer);
         fixmystreet.map.addControl( select_feature );
         select_feature.activate();
