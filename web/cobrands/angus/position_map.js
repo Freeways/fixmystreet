@@ -1,7 +1,7 @@
 // Wrap custom functionality up in a closure to keep scopes tidy
 var add_streetlights = (function() {
     var streetlight_layer = null;
-    var wfs_url = "http://angus.endpoint.davea.me/datatest/geoserver/services/wfs";
+    var wfs_url = "https://datatest.angus.gov.uk/geoserver/services/wfs"; // TODO: Switch to production geoserver
     var wfs_feature = "lighting_column_v";
     var streetlight_category = "Street lighting";
 
