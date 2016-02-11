@@ -4,32 +4,93 @@ var add_streetlights = (function() {
     var wfs_url = "https://datatest.angus.gov.uk/geoserver/services/wfs"; // TODO: Switch to production geoserver
     var wfs_feature = "lighting_column_v";
     var streetlight_category = "Street lighting";
+    var select_feature_control;
+    var selected_feature = null;
 
-    function street_light_selected(e) {
-            var column_id = e.feature.attributes.n;
-            $("#form_column_id").val(column_id);
-            var lonlat = e.feature.geometry.getBounds().getCenterLonLat();
+    function streetlight_selected(e) {
+        // Set the 'column id' extra field to the value of the light that was clicked
+        var column_id = e.feature.attributes.n;
+        $("#form_column_id").val(column_id);
 
-            // Hide the normal markers layer to keep things simple, but
-            // move the green marker to the point of the click to stop
-            // it jumping around unexpectedly if the user deselects street light.
-            fixmystreet.markers.setVisibility(false);
-            fixmystreet.markers.features[0].move(lonlat);
+        var lonlat = e.feature.geometry.getBounds().getCenterLonLat();
 
-            // Need to ensure the correct coords are used for the report
-            // We can't call fixmystreet_update_pin because that refreshes the category list,
-            // clobbering the value we stored in the #form_column_id field.
-            lonlat.transform(
-                fixmystreet.map.getProjectionObject(),
-                new OpenLayers.Projection("EPSG:4326")
-            );
-            document.getElementById('fixmystreet.latitude').value = lonlat.lat || lonlat.y;
-            document.getElementById('fixmystreet.longitude').value = lonlat.lon || lonlat.x;
+        // Hide the normal markers layer to keep things simple, but
+        // move the green marker to the point of the click to stop
+        // it jumping around unexpectedly if the user deselects street light.
+        fixmystreet.markers.setVisibility(false);
+        fixmystreet.markers.features[0].move(lonlat);
+
+        // Need to ensure the correct coords are used for the report
+        // We can't call fixmystreet_update_pin because that refreshes the category list,
+        // clobbering the value we stored in the #form_column_id field.
+        lonlat.transform(
+            fixmystreet.map.getProjectionObject(),
+            new OpenLayers.Projection("EPSG:4326")
+        );
+        document.getElementById('fixmystreet.latitude').value = lonlat.lat || lonlat.y;
+        document.getElementById('fixmystreet.longitude').value = lonlat.lon || lonlat.x;
+
+        // Make sure the marker that was clicked is drawn on top of its neighbours
+        var layer = e.feature.layer;
+        var feature = e.feature;
+        layer.eraseFeatures([feature]);
+        layer.drawFeature(feature);
+
+        // Keep track of selection in case layer is reloaded or hidden etc.
+        selected_feature = feature.clone();
     }
 
-    function street_light_unselected(e) {
+    function streetlight_unselected(e) {
         fixmystreet.markers.setVisibility(true);
         $("#form_column_id").val("");
+        selected_feature = null;
+    }
+
+    function find_matching_feature(feature) {
+        // When the WFS layer is reloaded the same features might be visible
+        // but they'll be different instances of the class so we can't use
+        // object identity comparisons.
+        // This function will find the best matching feature based on its
+        // attributes and distance from the original feature.
+        var threshold = 1; // metres
+        for (var i = 0; i < streetlight_layer.features.length; i++) {
+            var candidate = streetlight_layer.features[i];
+            var distance = candidate.geometry.distanceTo(feature.geometry);
+            if (candidate.attributes.n == feature.attributes.n && distance <= threshold) {
+                return candidate;
+            }
+        }
+    }
+
+    function layer_loadend(e) {
+        // Preserve the selected marker when panning, if it's still on the map
+        if (selected_feature !== null && !(selected_feature in this.selectedFeatures)) {
+            var replacement_feature = find_matching_feature(selected_feature);
+            if (!!replacement_feature) {
+                select_feature_control.select(replacement_feature);
+            }
+        }
+    }
+
+    function get_streetlight_stylemap() {
+        return new OpenLayers.StyleMap({
+            'default': new OpenLayers.Style({
+                fillColor: "#0066FF",
+                fillOpacity: 0.4,
+                strokeColor: "#000000",
+                strokeOpacity: 0.75,
+                strokeWidth: 1.25,
+                pointRadius: 6
+            }),
+            'select': new OpenLayers.Style({
+                fillColor: "#30FF0C",
+                fillOpacity: 0.9,
+                pointRadius: 14,
+                strokeColor: "#000000",
+                strokeOpacity: 1,
+                strokeWidth: 2.5
+            })
+        });
     }
 
     function add_streetlights() {
@@ -63,16 +124,20 @@ var add_streetlights = (function() {
             protocol: protocol,
             visibility: false,
             maxResolution: 2.388657133579254,
-            minResolution: 0.5971642833948135
+            minResolution: 0.5971642833948135,
+            styleMap: get_streetlight_stylemap()
         });
         streetlight_layer = layer;
+        fixmystreet.streetlight_layer = layer;
 
-        var select_feature = new OpenLayers.Control.SelectFeature( layer );
-        layer.events.register( 'featureselected', layer, street_light_selected);
-        layer.events.register( 'featureunselected', layer, street_light_unselected);
+        select_feature_control = new OpenLayers.Control.SelectFeature( layer );
+        layer.events.register( 'featureselected', layer, streetlight_selected);
+        layer.events.register( 'featureunselected', layer, streetlight_unselected);
+        layer.events.register( 'loadend', layer, layer_loadend);
         fixmystreet.map.addLayer(layer);
-        fixmystreet.map.addControl( select_feature );
-        select_feature.activate();
+        fixmystreet.map.addControl( select_feature_control );
+        select_feature_control.activate();
+        fixmystreet.select_feature_control = select_feature_control;
 
         // Show/hide the streetlight layer when the category is chosen
         $("#problem_form").on("change.category", "select#form_category", function(){
