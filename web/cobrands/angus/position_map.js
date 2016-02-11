@@ -62,10 +62,32 @@ var add_streetlights = (function() {
         }
     }
 
+    function check_zoom_message_visiblity() {
+        var category = $("#problem_form select#form_category").val();
+        if (category == streetlight_category) {
+            if (streetlight_layer.getVisibility() && streetlight_layer.inRange) {
+                $("#category_meta_message").remove();
+            } else {
+                if ($("#category_meta_message").length === 0) {
+                    var $p = $("<p>").prop("id", "category_meta_message").text("Please zoom in the map to see individual street lights.");
+                    var insertionid = $("#category_meta").length ? "#category_meta" : "#form_category_row";
+                    $p.insertAfter(insertionid);
+                }
+            }
+        } else {
+            $("#category_meta_message").remove();
+        }
+    }
+
+    function layer_visibilitychanged() {
+        check_zoom_message_visiblity();
+        select_nearest_streetlight();
+    }
+
     function select_nearest_streetlight() {
         // The user's green marker might be on the map the first time we show the
         // streetlights, so snap it to the closest streetlight marker if so.
-        if (!fixmystreet.markers.getVisibility() || !streetlight_layer.getVisibility()) {
+        if (!fixmystreet.markers.getVisibility() || !(streetlight_layer.getVisibility() && streetlight_layer.inRange)) {
             return;
         }
         var threshold = 50; // metres
@@ -75,7 +97,7 @@ var add_streetlights = (function() {
             return;
         }
         var closest_feature;
-        var closest_distance = null
+        var closest_distance = null;
         for (var i = 0; i < streetlight_layer.features.length; i++) {
             var candidate = streetlight_layer.features[i];
             var distance = candidate.geometry.distanceTo(marker.geometry);
@@ -162,7 +184,8 @@ var add_streetlights = (function() {
         layer.events.register( 'featureselected', layer, streetlight_selected);
         layer.events.register( 'featureunselected', layer, streetlight_unselected);
         layer.events.register( 'loadend', layer, layer_loadend);
-        layer.events.register( 'visibilitychanged', layer, select_nearest_streetlight);
+        layer.events.register( 'visibilitychanged', layer, layer_visibilitychanged);
+        fixmystreet.map.events.register( 'zoomend', layer, check_zoom_message_visiblity);
         fixmystreet.map.addLayer(layer);
         fixmystreet.map.addControl( select_feature_control );
         select_feature_control.activate();
