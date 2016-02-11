@@ -9,7 +9,11 @@ var add_streetlights = (function() {
             var column_id = e.feature.attributes.n;
             $("#form_column_id").val(column_id);
             var lonlat = e.feature.geometry.getBounds().getCenterLonLat();
-            // We should already have a problem location pin to move into place
+
+            // Hide the normal markers layer to keep things simple, but
+            // move the green marker to the point of the click to stop
+            // it jumping around unexpectedly if the user deselects street light.
+            fixmystreet.markers.setVisibility(false);
             fixmystreet.markers.features[0].move(lonlat);
 
             // Need to ensure the correct coords are used for the report
@@ -23,7 +27,8 @@ var add_streetlights = (function() {
             document.getElementById('fixmystreet.longitude').value = lonlat.lon || lonlat.x;
     }
 
-    function clear_column_id_field() {
+    function street_light_unselected(e) {
+        fixmystreet.markers.setVisibility(true);
         $("#form_column_id").val("");
     }
 
@@ -64,7 +69,7 @@ var add_streetlights = (function() {
 
         var select_feature = new OpenLayers.Control.SelectFeature( layer );
         layer.events.register( 'featureselected', layer, street_light_selected);
-        layer.events.register( 'featureunselected', layer, clear_column_id_field);
+        layer.events.register( 'featureunselected', layer, street_light_unselected);
         fixmystreet.map.addLayer(layer);
         fixmystreet.map.addControl( select_feature );
         select_feature.activate();
