@@ -1,18 +1,48 @@
 // Wrap custom functionality up in a closure to keep scopes tidy
 var add_streetlights = (function() {
-    var streetlight_layer = null;
     var wfs_url = "https://datatest.angus.gov.uk/geoserver/services/wfs"; // TODO: Switch to production geoserver
     var wfs_feature = "lighting_column_v";
+    var wfs_fault_feature = "lighting_faults_v";
     var streetlight_category = "Street lighting";
+    var max_resolution = 2.388657133579254;
+    var min_resolution = 0.5971642833948135;
+
+    var streetlight_layer = null;
+    var streetlight_fault_layer = null;
     var select_feature_control;
     var selected_feature = null;
+    var fault_popup = null;
+
+    function close_fault_popup() {
+        if (!!fault_popup) {
+            fixmystreet.map.removePopup(fault_popup);
+            fault_popup.destroy();
+            fault_popup = null;
+        }
+    }
 
     function streetlight_selected(e) {
+        close_fault_popup();
+        var lonlat = e.feature.geometry.getBounds().getCenterLonLat();
+
+        // Check if there is a known fault with the light that's been clicked,
+        // and disallow selection if so.
+        var fault_feature = find_matching_feature(e.feature, streetlight_fault_layer);
+        if (!!fault_feature) {
+            fault_popup = new OpenLayers.Popup.FramedCloud("popup",
+                e.feature.geometry.getBounds().getCenterLonLat(),
+                null,
+                "This fault (" + e.feature.attributes.n + ")<br />has been reported.",
+                { size: new OpenLayers.Size(0, 0), offset: new OpenLayers.Pixel(0, 0) },
+                true, close_fault_popup);
+            fixmystreet.map.addPopup(fault_popup);
+            select_feature_control.unselect(e.feature);
+            return;
+        }
+
         // Set the 'column id' extra field to the value of the light that was clicked
         var column_id = e.feature.attributes.n;
         $("#form_column_id").val(column_id);
-
-        var lonlat = e.feature.geometry.getBounds().getCenterLonLat();
 
         // Hide the normal markers layer to keep things simple, but
         // move the green marker to the point of the click to stop
@@ -46,15 +76,15 @@ var add_streetlights = (function() {
         selected_feature = null;
     }
 
-    function find_matching_feature(feature) {
+    function find_matching_feature(feature, layer) {
         // When the WFS layer is reloaded the same features might be visible
         // but they'll be different instances of the class so we can't use
         // object identity comparisons.
         // This function will find the best matching feature based on its
         // attributes and distance from the original feature.
         var threshold = 1; // metres
-        for (var i = 0; i < streetlight_layer.features.length; i++) {
-            var candidate = streetlight_layer.features[i];
+        for (var i = 0; i < layer.features.length; i++) {
+            var candidate = layer.features[i];
             var distance = candidate.geometry.distanceTo(feature.geometry);
             if (candidate.attributes.n == feature.attributes.n && distance <= threshold) {
                 return candidate;
@@ -115,7 +145,7 @@ var add_streetlights = (function() {
         select_nearest_streetlight();
         // Preserve the selected marker when panning/zooming, if it's still on the map
         if (selected_feature !== null && !(selected_feature in this.selectedFeatures)) {
-            var replacement_feature = find_matching_feature(selected_feature);
+            var replacement_feature = find_matching_feature(selected_feature, streetlight_layer);
             if (!!replacement_feature) {
                 select_feature_control.select(replacement_feature);
             }
@@ -143,6 +173,19 @@ var add_streetlights = (function() {
         });
     }
 
+    function get_fault_stylemap() {
+        return new OpenLayers.StyleMap({
+            'default': new OpenLayers.Style({
+                fillColor: "#FF6600",
+                fillOpacity: 1,
+                strokeColor: "#FF6600",
+                strokeOpacity: 1,
+                strokeWidth: 1.25,
+                pointRadius: 8
+            })
+        });
+    }
+
     function add_streetlights() {
         if (streetlight_layer !== null) {
             // Layer has already been added
@@ -163,6 +206,7 @@ var add_streetlights = (function() {
             return;
         }
 
+        // An interactive layer for selecting a street light
         var protocol = new OpenLayers.Protocol.WFS({
             version: "1.1.0",
             url:  wfs_url,
@@ -173,12 +217,29 @@ var add_streetlights = (function() {
             strategies: [new OpenLayers.Strategy.BBOX()],
             protocol: protocol,
             visibility: false,
-            maxResolution: 2.388657133579254,
-            minResolution: 0.5971642833948135,
+            maxResolution: max_resolution,
+            minResolution: min_resolution,
             styleMap: get_streetlight_stylemap()
         });
         streetlight_layer = layer;
         fixmystreet.streetlight_layer = layer;
+
+        // A non-interactive layer to display existing street light faults
+        var fault_protocol = new OpenLayers.Protocol.WFS({
+            version: "1.1.0",
+            url:  wfs_url,
+            featureType: wfs_fault_feature,
+            geometryName: "g"
+        });
+        var fault_layer = new OpenLayers.Layer.Vector("WFS", {
+            strategies: [new OpenLayers.Strategy.BBOX()],
+            protocol: fault_protocol,
+            visibility: false,
+            maxResolution: max_resolution,
+            minResolution: min_resolution,
+            styleMap: get_fault_stylemap()
+        });
+        streetlight_fault_layer = fault_layer;
 
         select_feature_control = new OpenLayers.Control.SelectFeature( layer );
         layer.events.register( 'featureselected', layer, streetlight_selected);
@@ -187,6 +248,8 @@ var add_streetlights = (function() {
         layer.events.register( 'visibilitychanged', layer, layer_visibilitychanged);
         fixmystreet.map.events.register( 'zoomend', layer, check_zoom_message_visiblity);
         fixmystreet.map.addLayer(layer);
+        fixmystreet.map.addLayer(fault_layer);
+        fault_layer.setZIndex(layer.getZIndex()-1); // so it's always beneath
         fixmystreet.map.addControl( select_feature_control );
         select_feature_control.activate();
         fixmystreet.select_feature_control = select_feature_control;
@@ -195,9 +258,11 @@ var add_streetlights = (function() {
         $("#problem_form").on("change.category", "select#form_category", function(){
             var category = $(this).val();
             if (category == streetlight_category) {
-                layer.setVisibility(true);
+                streetlight_layer.setVisibility(true);
+                streetlight_fault_layer.setVisibility(true);
             } else {
-                layer.setVisibility(false);
+                streetlight_layer.setVisibility(false);
+                streetlight_fault_layer.setVisibility(false);
             }
         });
     }
