@@ -62,8 +62,36 @@ var add_streetlights = (function() {
         }
     }
 
+    function select_nearest_streetlight() {
+        // The user's green marker might be on the map the first time we show the
+        // streetlights, so snap it to the closest streetlight marker if so.
+        if (!fixmystreet.markers.getVisibility() || !streetlight_layer.getVisibility()) {
+            return;
+        }
+        var threshold = 50; // metres
+        var marker = fixmystreet.markers.features[0];
+        if (marker === undefined) {
+            // No marker to be found so bail out
+            return;
+        }
+        var closest_feature;
+        var closest_distance = null
+        for (var i = 0; i < streetlight_layer.features.length; i++) {
+            var candidate = streetlight_layer.features[i];
+            var distance = candidate.geometry.distanceTo(marker.geometry);
+            if (closest_distance === null || distance < closest_distance) {
+                closest_feature = candidate;
+                closest_distance = distance;
+            }
+        }
+        if (closest_distance <= threshold && !!closest_feature) {
+            select_feature_control.select(closest_feature);
+        }
+    }
+
     function layer_loadend(e) {
-        // Preserve the selected marker when panning, if it's still on the map
+        select_nearest_streetlight();
+        // Preserve the selected marker when panning/zooming, if it's still on the map
         if (selected_feature !== null && !(selected_feature in this.selectedFeatures)) {
             var replacement_feature = find_matching_feature(selected_feature);
             if (!!replacement_feature) {
@@ -134,6 +162,7 @@ var add_streetlights = (function() {
         layer.events.register( 'featureselected', layer, streetlight_selected);
         layer.events.register( 'featureunselected', layer, streetlight_unselected);
         layer.events.register( 'loadend', layer, layer_loadend);
+        layer.events.register( 'visibilitychanged', layer, select_nearest_streetlight);
         fixmystreet.map.addLayer(layer);
         fixmystreet.map.addControl( select_feature_control );
         select_feature_control.activate();
