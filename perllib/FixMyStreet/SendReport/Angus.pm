@@ -90,15 +90,15 @@ sub jadu_form_fields {
                 },
                 {
                     name => 'Imageurl1',
-                    value => @{$row->photos} ? ($cobrand->base_url . $row->photos->[0]->{url_full}) : ''
+                    value => $row->photos->[0] ? ($cobrand->base_url . $row->photos->[0]->{url_full}) : ''
                 },
                 {
                     name => 'Imageurl2',
-                    value => @{$row->photos} ? ($cobrand->base_url . $row->photos->[1]->{url_full}) : ''
+                    value => $row->photos->[1] ? ($cobrand->base_url . $row->photos->[1]->{url_full}) : ''
                 },
                 {
                     name => 'Imageurl3',
-                    value => @{$row->photos} ? ($cobrand->base_url . $row->photos->[2]->{url_full}) : ''
+                    value => $row->photos->[2] ? ($cobrand->base_url . $row->photos->[2]->{url_full}) : ''
                 }
             ]
         }
