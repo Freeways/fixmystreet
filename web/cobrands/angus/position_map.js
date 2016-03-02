@@ -114,6 +114,17 @@ var add_streetlights = (function() {
         select_nearest_streetlight();
     }
 
+    function zoom_to_streetlights() {
+        // This function is called when the street lighting category is
+        // selected, and will zoom the map in to the first level that
+        // makes the street light layer visible if it's not already shown.
+        if (!streetlight_layer.inRange) {
+            var firstVisibleResolution = streetlight_layer.resolutions[0];
+            var zoomLevel = fixmystreet.map.getZoomForResolution(firstVisibleResolution);
+            fixmystreet.map.zoomTo(zoomLevel);
+        }
+    }
+
     function select_nearest_streetlight() {
         // The user's green marker might be on the map the first time we show the
         // streetlights, so snap it to the closest streetlight marker if so.
@@ -260,6 +271,7 @@ var add_streetlights = (function() {
             if (category == streetlight_category) {
                 streetlight_layer.setVisibility(true);
                 streetlight_fault_layer.setVisibility(true);
+                zoom_to_streetlights();
             } else {
                 streetlight_layer.setVisibility(false);
                 streetlight_fault_layer.setVisibility(false);
