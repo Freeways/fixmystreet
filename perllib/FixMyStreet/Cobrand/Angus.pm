@@ -24,6 +24,7 @@ sub disambiguate_location {
 
     return {
         %{ $self->SUPER::disambiguate_location() },
+        town => 'Angus',
         centre => '56.7240845983561,-2.91774391131183',
         span   => '0.525195055746977,0.985870680170788',
         bounds => [ 56.4616875530489, -3.40703662677109, 56.9868826087959, -2.4211659466003 ],
