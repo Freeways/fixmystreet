@@ -10,6 +10,7 @@ var add_streetlights = (function() {
     var streetlight_layer = null;
     var streetlight_fault_layer = null;
     var select_feature_control;
+    var hover_feature_control;
     var selected_feature = null;
     var fault_popup = null;
 
@@ -174,12 +175,27 @@ var add_streetlights = (function() {
                 pointRadius: 6
             }),
             'select': new OpenLayers.Style({
-                fillColor: "#30FF0C",
-                fillOpacity: 0.9,
-                pointRadius: 14,
+                externalGraphic: fixmystreet.pin_prefix + "pin-green.png",
+                graphicWidth: 48,
+                graphicHeight: 64,
+                graphicXOffset: -24,
+                graphicYOffset: -60,
+                backgroundGraphic: fixmystreet.pin_prefix + "pin-shadow.png",
+                backgroundWidth: 60,
+                backgroundHeight: 30,
+                backgroundXOffset: -7,
+                backgroundYOffset: -26,
+                popupYOffset: -40,
+                graphicOpacity: 1.0
+            }),
+            'temporary': new OpenLayers.Style({
+                fillColor: "#0066FF",
+                fillOpacity: 0.7,
                 strokeColor: "#000000",
-                strokeOpacity: 1,
-                strokeWidth: 2.5
+                strokeOpacity: 0.75,
+                strokeWidth: 1.5,
+                pointRadius: 9,
+                cursor: 'pointer'
             })
         });
     }
@@ -224,7 +240,7 @@ var add_streetlights = (function() {
             featureType: wfs_feature,
             geometryName: "g"
         });
-        var layer = new OpenLayers.Layer.Vector("WFS", {
+        streetlight_layer = new OpenLayers.Layer.Vector("WFS", {
             strategies: [new OpenLayers.Strategy.BBOX()],
             protocol: protocol,
             visibility: false,
@@ -232,8 +248,7 @@ var add_streetlights = (function() {
             minResolution: min_resolution,
             styleMap: get_streetlight_stylemap()
         });
-        streetlight_layer = layer;
-        fixmystreet.streetlight_layer = layer;
+        fixmystreet.streetlight_layer = streetlight_layer;
 
         // A non-interactive layer to display existing street light faults
         var fault_protocol = new OpenLayers.Protocol.WFS({
@@ -242,7 +257,7 @@ var add_streetlights = (function() {
             featureType: wfs_fault_feature,
             geometryName: "g"
         });
-        var fault_layer = new OpenLayers.Layer.Vector("WFS", {
+        streetlight_fault_layer = new OpenLayers.Layer.Vector("WFS", {
             strategies: [new OpenLayers.Strategy.BBOX()],
             protocol: fault_protocol,
             visibility: false,
@@ -250,20 +265,40 @@ var add_streetlights = (function() {
             minResolution: min_resolution,
             styleMap: get_fault_stylemap()
         });
-        streetlight_fault_layer = fault_layer;
 
-        select_feature_control = new OpenLayers.Control.SelectFeature( layer );
-        layer.events.register( 'featureselected', layer, streetlight_selected);
-        layer.events.register( 'featureunselected', layer, streetlight_unselected);
-        layer.events.register( 'loadend', layer, layer_loadend);
-        layer.events.register( 'visibilitychanged', layer, layer_visibilitychanged);
-        fixmystreet.map.events.register( 'zoomend', layer, check_zoom_message_visiblity);
-        fixmystreet.map.addLayer(layer);
-        fixmystreet.map.addLayer(fault_layer);
-        fault_layer.setZIndex(layer.getZIndex()-1); // so it's always beneath
+        // Set up handlers for selecting/unselecting markers and panning/zooming the map
+        select_feature_control = new OpenLayers.Control.SelectFeature( streetlight_layer );
+        streetlight_layer.events.register( 'featureselected', streetlight_layer, streetlight_selected);
+        streetlight_layer.events.register( 'featureunselected', streetlight_layer, streetlight_unselected);
+        streetlight_layer.events.register( 'loadend', streetlight_layer, layer_loadend);
+        streetlight_layer.events.register( 'visibilitychanged', streetlight_layer, layer_visibilitychanged);
+        fixmystreet.map.events.register( 'zoomend', streetlight_layer, check_zoom_message_visiblity);
+        // Set up handlers for simply hovering over a street light marker
+        hover_feature_control = new OpenLayers.Control.SelectFeature(
+            streetlight_layer,
+            {
+                hover: true,
+                highlightOnly: true,
+                renderIntent: 'temporary'
+            }
+        );
+        hover_feature_control.events.register('beforefeaturehighlighted', null, function(e) {
+            // Don't let marker go from selected->hover state,
+            // as it causes some mad flickering effect.
+            if (e.feature.renderIntent == 'select') {
+                return false;
+            }
+        });
+
+        fixmystreet.map.addLayer(streetlight_layer);
+        fixmystreet.map.addLayer(streetlight_fault_layer);
+        fixmystreet.map.addControl( hover_feature_control );
+        hover_feature_control.activate();
         fixmystreet.map.addControl( select_feature_control );
         select_feature_control.activate();
-        fixmystreet.select_feature_control = select_feature_control;
+
+        // Make sure the fault markers always appear beneath the street lights
+        streetlight_fault_layer.setZIndex(streetlight_layer.getZIndex()-1);
 
         // Show/hide the streetlight layer when the category is chosen
         $("#problem_form").on("change.category", "select#form_category", function(){
