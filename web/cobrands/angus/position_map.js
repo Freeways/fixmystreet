@@ -96,15 +96,20 @@ var add_streetlights = (function() {
     function check_zoom_message_visiblity() {
         var category = $("#problem_form select#form_category").val();
         if (category == streetlight_category) {
-            if (streetlight_layer.getVisibility() && streetlight_layer.inRange) {
-                $("#category_meta_message").remove();
-            } else {
-                if ($("#category_meta_message").length === 0) {
-                    var $p = $("<p>").prop("id", "category_meta_message").text("Please zoom in the map to see individual street lights.");
-                    var insertionid = $("#category_meta").length ? "#category_meta" : "#form_category_row";
-                    $p.insertAfter(insertionid);
-                }
+            var $p = $("#category_meta_message");
+
+            if ($p.length === 0) {
+                $p = $("<p>").prop("id", "category_meta_message");
+                var insertionid = $("#category_meta").length ? "#category_meta" : "#form_category_row";
+                $p.insertAfter(insertionid);
             }
+
+            if (streetlight_layer.getVisibility() && streetlight_layer.inRange) {
+                $p.html('Or pick a <b class="streetlight-spot">street light</b> from the map &raquo;');
+            } else {
+                $p.html('Or zoom in and pick a street light from the map');
+            }
+
         } else {
             $("#category_meta_message").remove();
         }
