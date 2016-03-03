@@ -175,16 +175,16 @@ var add_streetlights = (function() {
                 pointRadius: 6
             }),
             'select': new OpenLayers.Style({
-                externalGraphic: fixmystreet.pin_prefix + "pin-green.png",
+                externalGraphic: fixmystreet.pin_prefix + "pin-spot.png",
                 graphicWidth: 48,
                 graphicHeight: 64,
                 graphicXOffset: -24,
-                graphicYOffset: -60,
+                graphicYOffset: -56,
                 backgroundGraphic: fixmystreet.pin_prefix + "pin-shadow.png",
                 backgroundWidth: 60,
                 backgroundHeight: 30,
                 backgroundXOffset: -7,
-                backgroundYOffset: -26,
+                backgroundYOffset: -22,
                 popupYOffset: -40,
                 graphicOpacity: 1.0
             }),
