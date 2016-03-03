@@ -167,11 +167,11 @@ var add_streetlights = (function() {
     function get_streetlight_stylemap() {
         return new OpenLayers.StyleMap({
             'default': new OpenLayers.Style({
-                fillColor: "#0066FF",
-                fillOpacity: 0.4,
+                fillColor: "#FFFF00",
+                fillOpacity: 0.6,
                 strokeColor: "#000000",
-                strokeOpacity: 0.75,
-                strokeWidth: 1.25,
+                strokeOpacity: 0.8,
+                strokeWidth: 2,
                 pointRadius: 6
             }),
             'select': new OpenLayers.Style({
@@ -189,12 +189,12 @@ var add_streetlights = (function() {
                 graphicOpacity: 1.0
             }),
             'temporary': new OpenLayers.Style({
-                fillColor: "#0066FF",
-                fillOpacity: 0.7,
+                fillColor: "#55BB00",
+                fillOpacity: 0.8,
                 strokeColor: "#000000",
-                strokeOpacity: 0.75,
-                strokeWidth: 1.5,
-                pointRadius: 9,
+                strokeOpacity: 1,
+                strokeWidth: 2,
+                pointRadius: 8,
                 cursor: 'pointer'
             })
         });
