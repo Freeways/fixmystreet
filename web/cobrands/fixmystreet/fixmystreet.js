@@ -80,6 +80,10 @@ $(function(){
 
     var cobrand = $('meta[name="cobrand"]').attr('content');
 
+    if (typeof variation !== undefined && variation === 1) {
+        $('input[name=variant]').val(1);
+    }
+
     // Deal with switching between mobile and desktop versions on resize
     var last_type;
     $(window).resize(function(){
